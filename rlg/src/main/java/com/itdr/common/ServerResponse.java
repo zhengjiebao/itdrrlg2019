@@ -3,62 +3,66 @@ package com.itdr.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.io.Serializable;
+
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class ServerResponse<T> {
+public class ServerResponse<T> implements Serializable {
     private int status;
     private T data;
     private String msg;
 
-    public ServerResponse(){};
-    public ServerResponse(int status){
-        this.status = status;
+    private ServerResponse(T data){
+        this.data = data;
+        this.status = 200;
     }
-    public ServerResponse(int status,T data){
+    private ServerResponse(String msg){
+        this.msg = msg;
+        this.status = 100;
+    }
+    private ServerResponse(int status,T data){
         this.status = status;
         this.data = data;
     }
-    public ServerResponse(int status,String msg){
+    private ServerResponse(int status,String msg){
         this.status = status;
         this.msg = msg;
     }
-    public ServerResponse(int status,T data,String msg){
+    private ServerResponse(int status,T data,String msg){
         this.status = status;
         this.data = data;
         this.msg = msg;
     }
 
-    public static ServerResponse serverResponseBySuccess(){
-        return new ServerResponse(ResponseCode.SUCCESS);
+
+    public static <T> ServerResponse successRs(T data){
+        return new ServerResponse(data);
     }
 
-    public static <T> ServerResponse serverResponseBySuccess(T data){
-        return new ServerResponse(ResponseCode.SUCCESS,data);
+    public static <T> ServerResponse successRs(Integer status,T data){
+        return new ServerResponse(status,data);
     }
 
-    public static <T> ServerResponse serverResponseBySuccess(T data,String msg){
-        return new ServerResponse(ResponseCode.SUCCESS,data,msg);
+    public static <T> ServerResponse successRs(Integer status,T data,String msg){
+        return new ServerResponse(status,data,msg);
     }
 
-    public static ServerResponse serverResponseByError(){
-        return new ServerResponse(ResponseCode.ERROR);
-    }
 
-    public static ServerResponse serverResponseByError(String msg){
-        return new ServerResponse(ResponseCode.ERROR,msg);
-    }
-
-    public static ServerResponse serverResponseByError(int status){
-        return new ServerResponse(status);
-    }
-
-    public static ServerResponse serverResponseByError(int status,String msg){
+/*    public static <T> ServerResponse successRs(Integer status,String msg){
         return new ServerResponse(status,msg);
     }
 
-    @JsonIgnore
-    public boolean isSuccess(){
-        return this.status == ResponseCode.SUCCESS;
+    public static <T> ServerResponse successRs(String msg){
+        return new ServerResponse(msg);
+    }*/
+
+    public static <T> ServerResponse defeatedRs(Integer status,String msg){
+        return new ServerResponse(status,msg);
     }
+
+    public static <T> ServerResponse defeatedRs(String msg){
+        return new ServerResponse(msg);
+    }
+
 
     public int getStatus() {
         return status;
@@ -82,5 +86,10 @@ public class ServerResponse<T> {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    @JsonIgnore
+    public boolean isSuccess(){
+        return this.status == 200;
     }
 }

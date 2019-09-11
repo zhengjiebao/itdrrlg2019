@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.itdr.dao.UsersMapper" >
+<mapper namespace="com.itdr.mappers.UsersMapper" >
   <resultMap id="BaseResultMap" type="com.itdr.pojo.Users" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="username" property="username" jdbcType="VARCHAR" />
@@ -33,8 +33,8 @@
       update_time)
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
       #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{question,jdbcType=VARCHAR}, 
-      #{answer,jdbcType=VARCHAR}, #{role,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP})
+      #{answer,jdbcType=VARCHAR}, #{role,jdbcType=INTEGER}, now(),
+      now())
   </insert>
   <insert id="insertSelective" parameterType="com.itdr.pojo.Users" >
     insert into neuedu_user
@@ -106,12 +106,12 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.itdr.pojo.Users" >
     update neuedu_user
     <set >
-      <if test="username != null" >
+<!--      <if test="username != null" >
         username = #{username,jdbcType=VARCHAR},
       </if>
       <if test="password != null" >
         password = #{password,jdbcType=VARCHAR},
-      </if>
+      </if>-->
       <if test="email != null" >
         email = #{email,jdbcType=VARCHAR},
       </if>
@@ -124,15 +124,13 @@
       <if test="answer != null" >
         answer = #{answer,jdbcType=VARCHAR},
       </if>
-      <if test="role != null" >
+<!--      <if test="role != null" >
         role = #{role,jdbcType=INTEGER},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
+      </if>-->
+      update_time = now()
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -149,4 +147,62 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectByUsernameAndPassword" resultMap="BaseResultMap" parameterType="map" >
+    select
+    <include refid="Base_Column_List" />
+    from neuedu_user
+    where username = #{username} and password = #{password}
+  </select>
+
+  <!--检查用户是否有效-->
+  <select id="selectByUsernameOrEmail" resultType="java.lang.Integer" parameterType="map" >
+  select
+  count(id)
+  from neuedu_user
+  <where>
+    <if test="type == 'username'">
+      username = #{str}
+    </if>
+    <if test="type == 'email'">
+      email = #{str}
+    </if>
+  </where>
+</select>
+
+  <select id="selectByEmailAndId" resultType="java.lang.Integer" parameterType="map" >
+    select
+    count(id)
+    from neuedu_user
+    where email = #{email} and id != #{id}
+  </select>
+
+  <select id="selectByUsername" resultType="java.lang.String" parameterType="string" >
+    select
+    question
+    from neuedu_user
+    where username = #{username}
+  </select>
+
+  <select id="selectByUsernameAndQuestionAndAnswer" resultType="java.lang.Integer" parameterType="map" >
+    select
+    count(id)
+    from neuedu_user
+    where username = #{username} and question = #{question} and answer = #{answer}
+  </select>
+
+  <update id="updateByUsernameAndPassword" parameterType="map" >
+    update neuedu_user
+    set
+      password = #{passwordNew},
+      update_time = now()
+    where username = #{username}
+  </update>
+
+  <select id="selectByIdAndPassword" resultType="java.lang.Integer" parameterType="map" >
+    select
+    count(id)
+    from neuedu_user
+    where id = #{id} and password = #{passwordOld}
+  </select>
 </mapper>

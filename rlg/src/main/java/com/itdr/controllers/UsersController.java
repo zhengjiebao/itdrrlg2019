@@ -55,7 +55,7 @@ public class UsersController {
         return sr;
     }
 
-    //检查用户是否有效
+    //获取当前用户信息
     @RequestMapping("get_user_info.do")
     public ServerResponse<Users> getUsersInfo(HttpSession session){
         Users users = (Users) session.getAttribute("users");

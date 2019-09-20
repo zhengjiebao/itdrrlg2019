@@ -22,7 +22,7 @@ public class UsersServiceImp implements UsersService {
     @Override
     public ServerResponse<Users> login(String username, String password) {
         if (username == null || username.equals("")){
-            return ServerResponse.defeatedRs("用户名不能为空");
+            return ServerResponse.defeatedRs(Const.UsersEnum.NULL_USERNAME.getCode(),Const.UsersEnum.NULL_USERNAME.getDesc());
         }
         if (password == null || password.equals("")){
             return ServerResponse.defeatedRs("密码不能为空");
@@ -49,10 +49,11 @@ public class UsersServiceImp implements UsersService {
         return sr;
     }
 
+    //用户注册
     @Override
     public ServerResponse<Users> register(Users u) {
         if (u.getUsername() == null || u.getUsername().equals("")){
-            return ServerResponse.defeatedRs(Const.ERROR,"账户名不能为空");
+            return ServerResponse.defeatedRs(Const.ERROR,"用户名不能为空");
         }
         if (u.getPassword() == null || u.getPassword().equals("")){
             return ServerResponse.defeatedRs(Const.ERROR,"密码不能为空");
@@ -94,6 +95,7 @@ public class UsersServiceImp implements UsersService {
         return ServerResponse.successRs(Const.SUCCESS,null,"校验成功");
     }
 
+    //获取当前用户详细信息
     @Override
     public ServerResponse getInforamtion(Users users) {
         Users users1 = usersMapper.selectByPrimaryKey(users.getId());
@@ -162,6 +164,7 @@ public class UsersServiceImp implements UsersService {
         return ServerResponse.successRs(Const.SUCCESS,token);
     }
 
+    //忘记密码的重设密码
     @Override
     public ServerResponse<Users> forgetResetPassword(String username, String passwordNew, String forgetToken) {
         if (username == null || username.equals("")){
@@ -185,13 +188,14 @@ public class UsersServiceImp implements UsersService {
 
         String md5passwordNew = MD5Utils.getMD5Code(passwordNew);
 
-        int i = usersMapper.updateByUsernameAndPassword(username, passwordNew);
+        int i = usersMapper.updateByUsernameAndPassword(username, md5passwordNew);
         if (i <= 0){
             return ServerResponse.defeatedRs("修改密码失败");
         }
         return ServerResponse.successRs("修改密码成功");
     }
 
+    //登录中状态重置密码
     @Override
     public ServerResponse<Users> resetPassword(Users users, String passwordOld, String passwordNew) {
         if (passwordOld == null || passwordOld.equals("")){
